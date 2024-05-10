@@ -1,0 +1,116 @@
+class PersonalInfo:
+    def __init__(self, name, address, email, links=None):
+        self.name = name
+        self.address = address
+        self.email = email
+        self.links = links if links else []
+
+    def __repr__(self):
+        return f"Name: {self.name}, Address: {self.address}, Email: {self.email}, Links: {self.links}"
+
+
+class PersonalInfoManager:
+    def __init__(self):
+        self.personal_info = None
+
+    def create_personal_info(self, name, address, email, links=None):
+        if not self.personal_info:
+            self.personal_info = PersonalInfo(name, address, email, links)
+            print("Personal info created successfully!")
+        else:
+            print("Personal info already exists. Use update operation to modify.")
+
+    def read_personal_info(self):
+        if self.personal_info:
+            return self.personal_info
+        else:
+            print("No personal info found.")
+            return None
+
+    def update_personal_info(self, name=None, address=None, email=None, links=None):
+        if not self.personal_info:
+            print("No personal info found. Use create operation first.")
+        else:
+            if name:
+                self.personal_info.name = name
+            if address:
+                self.personal_info.address = address
+            if email:
+                self.personal_info.email = email
+            if links:
+                self.personal_info.links = links
+            print("Personal info updated successfully!")
+
+    def delete_personal_info(self):
+        if self.personal_info:
+            self.personal_info = None
+            print("Personal info deleted successfully!")
+        else:
+            print("No personal info found.")
+
+
+class SecureApp:
+    def __init__(self, wallet_address):
+        self.wallet_address = wallet_address
+        self.personal_info_manager = PersonalInfoManager()
+
+    def create_personal_info(self, name, address, email, links=None, caller_wallet_address=None):
+        if caller_wallet_address == self.wallet_address:
+            self.personal_info_manager.create_personal_info(name, address, email, links)
+        else:
+            print("Unauthorized access. Access denied.")
+
+    def read_personal_info(self, caller_wallet_address=None):
+        if caller_wallet_address == self.wallet_address:
+            return self.personal_info_manager.read_personal_info()
+        else:
+            print("Unauthorized access. Access denied.")
+            return None
+
+    def update_personal_info(self, name=None, address=None, email=None, links=None, caller_wallet_address=None):
+        if caller_wallet_address == self.wallet_address:
+            self.personal_info_manager.update_personal_info(name, address, email, links)
+        else:
+            print("Unauthorized access. Access denied.")
+
+    def delete_personal_info(self, caller_wallet_address=None):
+        if caller_wallet_address == self.wallet_address:
+            self.personal_info_manager.delete_personal_info()
+        else:
+            print("Unauthorized access. Access denied.")
+
+
+# Example usage
+if __name__ == "__main__":
+    # Initialize the secure app with a wallet address
+    secure_app = SecureApp(wallet_address="0x1234567890abcdef1234567890abcdef12345678")
+
+    # Create personal info (accessible only by the specified wallet address)
+    secure_app.create_personal_info(
+        name="John Doe",
+        address="123 Main St",
+        email="johndoe@example.com",
+        links=["https://linkedin.com/johndoe", "https://twitter.com/johndoe"],
+        caller_wallet_address="0x1234567890abcdef1234567890abcdef12345678"
+    )
+
+    # Read personal info (accessible only by the specified wallet address)
+    personal_info = secure_app.read_personal_info(caller_wallet_address="0x1234567890abcdef1234567890abcdef12345678")
+    print("Personal Info:", personal_info)
+
+    # Update personal info (accessible only by the specified wallet address)
+    secure_app.update_personal_info(
+        name="Jane Smith",
+        caller_wallet_address="0x1234567890abcdef1234567890abcdef12345678"
+    )
+
+    # Read updated personal info
+    updated_info = secure_app.read_personal_info(caller_wallet_address="0x1234567890abcdef1234567890abcdef12345678")
+    print("Updated Personal Info:", updated_info)
+
+    # Delete personal info (accessible only by the specified wallet address)
+    secure_app.delete_personal_info(caller_wallet_address="0x1234567890abcdef1234567890abcdef12345678")
+
+    # Attempt to read personal info after deletion (should return None)
+    deleted_info = secure_app.read_personal_info(caller_wallet_address="0x1234567890abcdef1234567890abcdef12345678")
+    print("Deleted Personal Info:", deleted_info)
